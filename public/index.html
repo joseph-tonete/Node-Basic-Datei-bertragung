@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faiel Transfêr</title>
+</head>
+<body>
+    <h1>This is the Home page!</h1>
+    <p>We will be doing great things here!</p>
+    <button onclick="tryPOST()">POST</button>
+
+    <script>
+        function tryPOST(){
+            fetch("/upload-file", {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: "Joseph",
+                    age: 20
+                })
+            }).then(function (response){
+                console.log(response)
+            }).catch(function (error){
+                console.error(error)
+            })
+        }
+    </script>
+</body>
+</html>

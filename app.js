@@ -2,19 +2,28 @@ const express = require('express')
 const app = express()
 const port = 1000
 
+const fs = require('fs')
+
+app.use(express.json())
+
 app.get('/', (req, res) => {
-    res.send(`
-        <h1>This is the Home page!</h1>
-        <p>We will be doing great things here!</p>
-        `)
+    fs.readFile('public/index.html', 'utf-8', (err,data) => {
+        if (err) {
+            console.error('Error reading file: ', err)
+            return
+        }
+        res.send(data)
+    })
 })
 
 app.post('/upload-file', (req, res) => {
-    console.log(req)
+    console.log(req.body)
+    res.status(201).json({message: 'Received request!', user: req.body})
 })
 
 app.delete('/delete-file', (req, res) => {
-    console.log(req)
+    console.log(req.body)
+    res.status(201).json({message: 'Received request!', user: req.body})
 })
 
 app.use((req, res) => {
