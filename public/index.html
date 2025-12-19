@@ -8,19 +8,19 @@
 <body>
     <h1>This is the Home page!</h1>
     <p>We will be doing great things here!</p>
+    <input type="file" id="fileInput">
     <button onclick="tryPOST()">POST</button>
 
     <script>
         function tryPOST(){
+            const fileInput = document.getElementById('fileInput')
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0])
+            formData.append("username", "Joseph")
             fetch("/upload-file", {
                 method: 'POST',
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    name: "Joseph",
-                    age: 20
-                })
+                body: formData
             }).then(function (response){
                 console.log(response)
             }).catch(function (error){
