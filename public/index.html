@@ -4,20 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Faiel Transfêr</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+
+        img:hover {
+            filter:grayscale(1);
+            filter:invert(1);
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <h1>This is the Home page!</h1>
     <p>We will be doing great things here!</p>
     <input type="file" id="fileInput">
     <button onclick="tryPOST()">POST</button>
-
+    <br>
+    <button onclick="tryGET()">GET</button>
+    <p id="getResponse"></p>
+    <div id="imagesContainer"></div>
     <script>
+        function tryDELETE(imagePath){
+            alert("Será deletado!")
+        }
+
+        function tryGET(){
+            const paragraphResponse = document.getElementById('getResponse')
+            const imagesContainer = document.getElementById('imagesContainer')
+
+            fetch("/all-images")
+            .then(response => response.json())
+            .then(data => {
+                data.paths.forEach((path) => {
+                    imagesContainer.innerHTML += 
+                    `
+                    <img src="${path}" alt="${path}" onclick="tryDELETE('${path}')">
+                    `
+                })
+            })
+            .then(paragraphResponse.innerHTML = "Imagens acessadas!")
+            .catch(function (error){
+                paragraphResponse.innerHTML = "Erro na busca: " + error
+            })
+        }
+
         function tryPOST(){
             const fileInput = document.getElementById('fileInput')
 
             const formData = new FormData();
             formData.append("file", fileInput.files[0])
-            formData.append("username", "Joseph")
+            formData.append("username", "Username")
             fetch("/upload-file", {
                 method: 'POST',
                 body: formData
