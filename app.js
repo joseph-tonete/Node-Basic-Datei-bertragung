@@ -46,9 +46,14 @@ app.post('/upload-file', upload.single("file"), (req, res) => {
     res.status(201).json({message: 'Received request!', user: req.body})
 })
 
-app.delete('/delete-file', (req, res) => {
-    console.log(req.body)
-    res.status(201).json({message: 'Received request!', user: req.body})
+app.delete('/delete-file/:imagePath/:imageName', (req, res) => {
+    try {
+        fs.unlink('public/' + req.params.imagePath + '/' + req.params.imageName)
+        console.log(`Image ${req.params.imageName} removed!`)
+        res.status(201).json({message: `Image ${req.params.imageName} removed!`})
+    } catch (err) {
+        console.error("Error deliting file: ", err)
+    }
 })
 
 app.use((req, res) => {

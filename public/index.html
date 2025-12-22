@@ -29,7 +29,24 @@
     <div id="imagesContainer"></div>
     <script>
         function tryDELETE(imagePath){
-            alert("Será deletado!")
+            
+            fetch("/delete-file/" + imagePath, {
+                method: "DELETE"
+            })
+            .then(response => response.json())
+            .then(data => {console.log(data)})
+            .then(cleanGET())
+            .then(tryGET())
+            .catch(error => {
+                console.error(error)
+            })
+
+        }
+
+        function cleanGET(){
+            document.querySelectorAll('img').forEach((elmnt) => {
+                elmnt.remove()
+            })
         }
 
         function tryGET(){
@@ -38,6 +55,7 @@
 
             fetch("/all-images")
             .then(response => response.json())
+            .then(cleanGET())
             .then(data => {
                 data.paths.forEach((path) => {
                     imagesContainer.innerHTML += 
@@ -61,12 +79,14 @@
             fetch("/upload-file", {
                 method: 'POST',
                 body: formData
-            }).then(function (response){
-                console.log(response)
-            }).catch(function (error){
-                console.error(error)
             })
+            .then(function (response){console.log(response)})
+            .then(cleanGET())
+            .then(tryGET())
+            .catch(function (error){console.error(error)})
         }
+
+        tryGET()
     </script>
 </body>
 </html>
