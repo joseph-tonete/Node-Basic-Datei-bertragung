@@ -41,12 +41,16 @@
     <h2>Imagens:</h2>
     <p id="getResponse"></p>
     <div id="imagesContainer"></div>
+
     <script>
+        // Function loads only after document loading
         document.addEventListener('DOMContentLoaded', () => {
             const fileInput = document.getElementById('fileInput')
             fileInput.addEventListener('input', () => tryPOST())
+            tryGET()
         })
 
+        // GET, POST and DELETE functions
         function tryDELETE(imageName){
             fetch("/delete-file/" + imageName, {
                 method: "DELETE"
@@ -59,12 +63,6 @@
                 pMessage('Sucesso ao remover!')
             })
             .catch(error => pMessage('Erro ao remover: ' + error))
-        }
-
-        function cleanGET(){
-            document.querySelectorAll('.imageCard').forEach((elmnt) => {
-                elmnt.remove()
-            })
         }
 
         function tryGET(){
@@ -105,12 +103,17 @@
             .catch(error => pMessage('Erro ao enviar arquivo: ' + error))
         }
 
+        // Auxiliary functions
+        function cleanGET(){
+            document.querySelectorAll('.imageCard').forEach((elmnt) => {
+                elmnt.remove()
+            })
+        }
+
         function pMessage(message){
             const paragraphResponse = document.getElementById('getResponse')
             paragraphResponse.innerHTML = message
         }
-
-        tryGET()
     </script>
 </body>
 </html>

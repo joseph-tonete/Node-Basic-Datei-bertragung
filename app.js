@@ -1,11 +1,13 @@
-// IMPORTAÇÕES
+// Imports
 const express = require('express')
 const app = express()
 const port = 1000
 
 const fs = require('fs').promises
 
+const path = require('path')
 
+// Middleware???
 const dirPath = 'public/files/'
 const multer = require('multer')
 const storage = multer.diskStorage({
@@ -26,10 +28,7 @@ const upload = multer({
     }
 })
 
-const path = require('path')
-
-//ROTAS
-
+//Routs
 app.use(express.json())
 
 app.use(express.static('public'))
@@ -67,9 +66,11 @@ app.delete('/delete-file/:imageName', async (req, res) => {
 })
 
 app.use((req, res) => {
-    res.status(404).send(`
-        <h1 style='color: red'>You shouldn't be seeing this!</h1>
-        `)
+    res.status(404).send(
+        `
+            <h1 style='color: red'>You shouldn't be seeing this!</h1>
+        `
+    )
 })
 
 app.listen(port, () => {
