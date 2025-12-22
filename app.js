@@ -13,10 +13,18 @@ const storage = multer.diskStorage({
         cb(null, dirPath)
     },
     filename: (req, file, cb) => {
-        cb(null, file.originalname)
+        cb(null, Date.now() + '-' + file.originalname)
     }
 })
-const upload = multer({ storage})
+const upload = multer({
+    storage,
+    fileFilter: (req, file, cb) => {
+        if(!file.mimetype.startsWith("image/")) {
+            return cb(new Error("Only images allowed"))
+        }
+        cb(null, true)
+    }
+})
 
 const path = require('path')
 
@@ -28,31 +36,33 @@ app.use(express.static('public'))
 
 app.get('/all-images', async (req, res) => {
     try {
-        let filesPaths = []
         const files = await fs.readdir(dirPath)
-        files.forEach((file) => {
-            let fullFilePath = "files/" + file
-            filesPaths.push(fullFilePath)
-        })
-        res.json({paths: filesPaths})
+        const filesPaths = files.map(file => `files/${file}`)
+        res.status(200).json({paths: filesPaths})
     } catch (err) {
         console.error('Error getting images', err)
+        res.status(500).json({message: `Error getting images. ${err}`})
     }
 })
 
 app.post('/upload-file', upload.single("file"), (req, res) => {
+    if(!req.file){
+        return res.status(400).json({message: "No file uploaded!"})
+    }
     console.log(req.file.originalname)
-    console.log(req.body)
     res.status(201).json({message: 'Received request!', user: req.body})
 })
 
-app.delete('/delete-file/:imagePath/:imageName', (req, res) => {
+app.delete('/delete-file/:imageName', async (req, res) => {
     try {
-        fs.unlink('public/' + req.params.imagePath + '/' + req.params.imageName)
-        console.log(`Image ${req.params.imageName} removed!`)
-        res.status(201).json({message: `Image ${req.params.imageName} removed!`})
+        const imageName = req.params.imageName
+        const fullPath = path.join(dirPath, imageName)
+        await fs.unlink(fullPath)
+        console.log(`Image ${imageName} removed!`)
+        res.status(200).json({message: `Image ${imageName} removed!`})
     } catch (err) {
-        console.error("Error deliting file: ", err)
+        console.error("Error deleting file: ", err)
+        res.status(500).json({message: `Error trying to remove image!`})
     }
 })
 

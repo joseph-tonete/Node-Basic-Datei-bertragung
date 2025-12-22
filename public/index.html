@@ -9,6 +9,7 @@
         img {
             max-width: 200px;
             max-height: 200px;
+            box-shadow: 0px 0px 10px -5px gray;
         }
 
         img:hover {
@@ -16,63 +17,79 @@
             filter:invert(1);
             cursor: pointer;
         }
+
+        #imagesContainer {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .imageCard {
+            max-width: 200px;
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
     <h1>This is the Home page!</h1>
     <p>We will be doing great things here!</p>
     <input type="file" id="fileInput">
-    <button onclick="tryPOST()">POST</button>
     <br>
-    <button onclick="tryGET()">GET</button>
+    <h2>Imagens:</h2>
     <p id="getResponse"></p>
     <div id="imagesContainer"></div>
     <script>
-        function tryDELETE(imagePath){
-            
-            fetch("/delete-file/" + imagePath, {
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('fileInput')
+            fileInput.addEventListener('input', () => tryPOST())
+        })
+
+        function tryDELETE(imageName){
+            fetch("/delete-file/" + imageName, {
                 method: "DELETE"
             })
             .then(response => response.json())
-            .then(data => {console.log(data)})
-            .then(cleanGET())
-            .then(tryGET())
-            .catch(error => {
-                console.error(error)
+            .then(data => {
+                console.log(data)
+                cleanGET()
+                tryGET()
+                pMessage('Sucesso ao remover!')
             })
-
+            .catch(error => pMessage('Erro ao remover: ' + error))
         }
 
         function cleanGET(){
-            document.querySelectorAll('img').forEach((elmnt) => {
+            document.querySelectorAll('.imageCard').forEach((elmnt) => {
                 elmnt.remove()
             })
         }
 
         function tryGET(){
-            const paragraphResponse = document.getElementById('getResponse')
             const imagesContainer = document.getElementById('imagesContainer')
-
             fetch("/all-images")
             .then(response => response.json())
-            .then(cleanGET())
             .then(data => {
+                cleanGET()
                 data.paths.forEach((path) => {
+                    let imageName = path.split("/")[1]
                     imagesContainer.innerHTML += 
                     `
-                    <img src="${path}" alt="${path}" onclick="tryDELETE('${path}')">
+                    <div class="imageCard">
+                    <img src="${path}" title="${imageName}" onclick="tryDELETE('${imageName}')">
+                    ${imageName}
+                    </div>
                     `
                 })
             })
-            .then(paragraphResponse.innerHTML = "Imagens acessadas!")
-            .catch(function (error){
-                paragraphResponse.innerHTML = "Erro na busca: " + error
-            })
+            .then(() => pMessage("Imagens acessadas!"))
+            .catch(error => pMessage("Erro na busca: " + error))
         }
 
         function tryPOST(){
             const fileInput = document.getElementById('fileInput')
-
             const formData = new FormData();
             formData.append("file", fileInput.files[0])
             formData.append("username", "Username")
@@ -80,10 +97,17 @@
                 method: 'POST',
                 body: formData
             })
-            .then(function (response){console.log(response)})
-            .then(cleanGET())
-            .then(tryGET())
-            .catch(function (error){console.error(error)})
+            .then(response => {
+                cleanGET()
+                tryGET()
+            })
+            .then(() => pMessage('Sucesso ao enviar arquivo! '))
+            .catch(error => pMessage('Erro ao enviar arquivo: ' + error))
+        }
+
+        function pMessage(message){
+            const paragraphResponse = document.getElementById('getResponse')
+            paragraphResponse.innerHTML = message
         }
 
         tryGET()
